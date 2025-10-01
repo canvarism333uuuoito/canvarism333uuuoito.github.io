@@ -319,7 +319,7 @@ body {
     color: white !important;
 }
 </style>
-    <script src="//ssl.p.jwpcdn.com/player/v/8.38.5/jwplayer.js"></script>
+    <script src="//ssl.p.jwpcdn.com/player/v/8.22.1/jwplayer.js"></script>
     <script>jwplayer.key = "XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo";</script>
  
     <style>
@@ -496,35 +496,8 @@ description: "EN VIVO",
     }
        }
        );
-// Audio boost si el dispositivo lo permite
-      if (!/SmartTV|Tizen|Web0S|SmartHub|Chromecast/i.test(navigator.userAgent)) {
-        jwplayer("player").on("ready", function () {
-          var videoElement = document.querySelector("#player video");
-          if (videoElement) {
-            try {
-              var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-              var source = audioContext.createMediaElementSource(videoElement);
-              var gainNode = audioContext.createGain();
-              gainNode.gain.value = 2;
-              source.connect(gainNode);
-              gainNode.connect(audioContext.destination);
-            } catch (err) {
-              console.warn("Audio boost no disponible:", err);
-            }
-          }
-        });
-      }
-
-      // Selección automática de idioma
-      var lang = 1;
-      jwplayer("player").on("play", function () {
-        jwplayer("player").setCurrentAudioTrack(lang);
-      });
-    }
-
-    window.onload = function () {
-      iniciarReproductor();
-    };
+		jwplayer("player").on("play", function(e){jwplayer("player").setCurrentAudioTrack(1)});
+  }
     </script>
 </body>
 </html>
