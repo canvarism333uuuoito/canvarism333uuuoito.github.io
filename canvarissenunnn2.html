@@ -1,0 +1,172 @@
+<head>
+<script src="//cdn.jsdelivr.net/npm/@clappr/player@0.4.0/dist/clappr.min.js"></script> 
+<script src="//cdn.jsdelivr.net/npm/mux.js@5.6.7/dist/mux.min.js"></script> 
+<script src='//cdn.jsdelivr.net/npm/level-selector@latest/dist/level-selector.min.js'></script> 
+<script src='//cdn.jsdelivr.net/npm/clappr-pip@latest/dist/clappr-pip.min.js'></script> 
+<script src='//cdn.jsdelivr.net/npm/clappr-playback-rate-plugin@latest/dist/clappr-playback-rate-plugin.min.js'></script> 
+<script src="//cdn.jsdelivr.net/npm/shaka-player@2.5.10/dist/shaka-player.compiled.min.js"></script> 
+<script src="//cdn.jsdelivr.net/gh/clappr/dash-shaka-playback@latest/dist/dash-shaka-playback.external.min.js"></script> 
+<script src="//cdn.jsdelivr.net/npm/cdnbye-shaka@latest"></script> 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>  
+<style> 
+.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] {
+    height: 5px !important; }.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar]:hover .bar-background[data-seekbar] {
+    height: 7px !important;}.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] .bar-fill-1[data-seekbar] {
+    background-color: red !important;}.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] {background-color: rgba(255, 255, 255, 0.2) !important; }
+.player-poster[data-poster] {
+  background-size: cover;
+}
+body{
+  margin:0;
+   background-color: #05081c;
+  padding:0;
+}
+
+</style> 
+</head> 
+<body>
+<div id="player"></div> 
+<script> 
+function getUrlParameter(name) {
+    var result = null;
+    var regex = new RegExp('[?&]' + name + '=([^&#]*)', 'i');
+    var match = window.location.search.match(regex);
+    if (match) {
+        result = decodeURIComponent(match[1]);
+    }
+    return result;
+}
+
+var id = getUrlParameter('id');
+
+var source = '';
+var clearKeys = {};
+
+if (id === 'HISTORIA') {
+    source = 'https://spt-novelas-1-us.lg.wurl.tv/playlist.m3u8';
+    clearKeys = {
+        
+        
+    };
+} else if (id === 'LA1') {
+    source = 'https://tvup01.edge.milloh-cs.com/la1-neutral/la1-neutral.mpd';
+    clearKeys = {
+        '562f81a1d0c3508a92272bb2d1a1ff68': '689317e107f46e168c72a495203eefec',
+        '282ada04f991565d9eea39e675d843ef': 'fdeb35eaa846c3b4ecacb86547045c25',
+        'e080cf6f71365721a531637e02231a7a': '461cf77fac8985df81510ab8dbf5f81e'
+    };
+} else if (id === 'LA2') {
+    source = 'https://tvup01.edge.milloh-cs.com/la2l/la2l.mpd';
+    clearKeys = {
+        '2a65a80955e550039651caae1b32ee9a': '91532fd3f963cfca61d2753af1b84136',
+        '3a217613ab4c5d8399434d679bb43ca5': 'd1d41a48e85ed378cfc7de72f19edd1f',
+        '6293f906b9f65e7783125513d313a3f9': 'cbdd50a59a9eea3ecd1b3b95c56940c0'
+    };
+}  else if (id === 'ANTENA3') {
+    source = 'https://tvup01.edge.milloh-cs.com/antena3hd/antena3hd.mpd';
+    clearKeys = {
+        '173bcb78d33a5ae7ba7357ad94723f28': '1e69f953c8974cacf85e9c29c6a0f2cc',
+        'b5aefe37a38c5642876e992ab484e1fa': '9740dbf62ae7811d17d87d3a8ef0c442',
+        'c648943f6c405d9189a1b4bc518838b0': '6b495ac32285d600d3334dd9bed52d59'
+    };
+}  else if (id === 'CUATRO') {
+    source = 'https://tvup01.edge.milloh-cs.com/cuatro/cuatro.mpd';
+    clearKeys = {
+        '78fecad5e0145b71916e132f1bc293b2': '24f2ca53927a5134fb702e6121f1aea3',
+        '8708aa66d18858fbb0a9876bf0cc7878': '9148f9a909f41429e7f3070913e8fa8d',
+        '38483b5bc206535c94dbd29d73a2a90b': 'c7024c92716b0a7ea853a0881ce01315'
+    };
+}  else if (id === 'TELECINCO') {
+    source = 'https://tvup01.edge.milloh-cs.com/telecincohd/telecincohd.mpd';
+    clearKeys = {
+        'def5769eed6152d2b32aa1c75a624764': 'ed06df900e0b84549a834c49997dc8ad',
+        '7ca93b77733454d3830c60996ad8929b': '8ab9809fc799015a41c39b8b9d6ab9a5',
+        'faebbb9b817459d2965625708666a114': '9a1aa94adb0b15b523836c6f41843726'
+    };
+}  else if (id === 'LASEXTA') {
+    source = 'https://tvup01.edge.milloh-cs.com/lasexta/lasexta.mpd';
+    clearKeys = {
+        '8a56a25be1ed5c6a946edc8493d42d1d': '0332ad7b0a05c7ff5854cfb0cf8737fe',
+        '1179fa165d8354a58a02377eb9e9ad52': '05d8d60b479a1bbf2b9b21765dfe63e6',
+        '3a192ebf13e05c528459dc66031e2da2': '8179c86be8e1f3ad9053aa8ccd977408'
+    };
+}  else if (id === 'FS1MX') {
+    source = 'https://ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/oboxe53wyo/out/v1/f7892a9d706d419a846d738fa22ea33e/cenc.mpd';
+    clearKeys = {
+        "2fbdaa3bea0d0323ae011b318d1db716": "8726ef7eaf5b9dce15fb6aa9f80bd53f"
+    };
+}  else if (id === 'FS2MX') {
+    source = 'https://ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/tepjqej1ys/out/v1/c9c9159baee749a19612b1598495859a/cenc.mpd';
+    clearKeys = {
+        "8836fb04d62dc64c9f8a39ef8640d5eb": "d4f05ce56c5231b7cdf53455bea58621"
+    };
+} else if (id === 'FS3MX') {
+    source = 'https://ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/wybgz0orr8/out/v1/2f6d1612abd44f5883917f8a585b955f/cenc.mpd';
+    clearKeys = {
+        "11c8c1c2ef0385cf1e64d44bb9c3a395": "5769730ffbdc4b2fd8945929d9ace063"
+    };
+} else if (id === 'ESPN_2_ARG') {
+    source = 'https://pylocallivechanneldash.lcdn.clarotv.com.py/Content/DASH_DASH_FK/Live/channel(ESPN2)/manifest.mpd';
+    clearKeys = {
+        '579fc0cd11842bce9c045a0d55aa4872': 'bf54d928e27061a13fafdde934146472'
+    };
+} else if (id === 'ESPN_3_ARG') {
+    source = 'https://pylocallivechanneldash.lcdn.clarotv.com.py/Content/DASH_DASH_FK/Live/channel(ESPN3)/manifest.mpd';
+    clearKeys = {
+        '1b645185cd62d881fa91fd92170690ea': 'e5f759e256c768c6349deb9cc446cabe'
+    };
+}  else if (id === 'FOX_1_AR') {
+    source = 'https://pylocallivechanneldash.lcdn.clarotv.com.py/Content/DASH_DASH_FK/Live/channel(FOX_SPORTS)/manifest.mpd';
+    clearKeys = {
+        '6a5ee0465846b56021136c6c69741375': 'a273d74c9c9269c0793862da41cf41b9'
+    };
+}  else if (id === 'FOX_2_AR') {
+    source = 'https://pylocallivechanneldash.lcdn.clarotv.com.py/Content/DASH_DASH_FK/Live/channel(FOX_SPORTS_2)/manifest.mpd';
+    clearKeys = {
+        'd6e347e55f793df11e4ed7fc4ca397dd': 'ccc0df4145157aa753e61a3940603d0b'
+    };
+} else if (id === 'FOX_3_AR') {
+    source = 'https://pylocallivechanneldash.lcdn.clarotv.com.py/Content/DASH_DASH_FK/Live/channel(FOX_SPORTS_3)/manifest.mpd';
+    clearKeys = {
+        '07d6de0963faf991eadde57c90605350': '214f8c082dfb8ba30c28d1034f5c1eb2'
+    };
+}  else {
+    alert('No se encontró un ID válido.');
+}
+var player = new Clappr.Player({ 
+        source: source, 
+        mimeType: 'application/dash+xml', 
+        Type: 'hls', 
+        height: '100%', 
+        width: '100%', 
+        poster: '',
+        plugins: [
+            LevelSelector, 
+            DashShakaPlayback, 
+            ClapprPip.PipButton, 
+            ClapprPip.PipPlugin, 
+            Clappr.MediaControl,
+            Clappr.Poster
+        ], 
+        events: {
+            onReady: function() {
+                var plugin = this.getPlugin('click_to_pause'); 
+                plugin && plugin.disable();
+            },
+        }, 
+        chromecast: { 
+            appId: '#', 
+            contentType: 'video/mp4', 
+        }, 
+        shakaConfiguration: { 
+            drm: { 
+            clearKeys: clearKeys
+            }, 
+            preferredAudioLanguage: 'pt-BR', 
+        }, 
+        shakaOnBeforeLoad: function (shaka_player) {}, 
+        parentId: '#player' 
+    }); 
+</script>
+</body>
+</html>
