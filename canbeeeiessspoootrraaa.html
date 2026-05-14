@@ -13,41 +13,47 @@ body {
 <script src="//cdn.jsdelivr.net/gh/clappr/dash-shaka-playback@latest/dist/dash-shaka-playback.external.min.js"></script>
 <script src="//cdn.jsdelivr.net/npm/cdnbye-shaka@latest"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> 
-<script type="text/javascript">
-  function getParameterByName(name) {
-      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-      results = regex.exec(location.search);
-      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
 
-}
-</script>
 <style> 
+ .level_selector[data-level-selector]{float:right;position:relative;height:100%}.level_selector[data-level-selector] button{background-color:transparent;color:#ffea00;font-family:Roboto,Open Sans,Arial,sans-serif;}.level_selector[data-level-selector] button:hover{color:#ffea00}.level_selector[data-level-selector] button.changing{-webkit-animation:pulse .5s infinite alternate}.level_selector[data-level-selector] li[data-title]{background-color:#ffea00;padding:8px 25px}.level_selector[data-level-selector] li a{color:#eee;padding:5px 18px;display:block;text-decoration:none}.level_selector[data-level-selector] li a:hover{background-color:hsla(0,0%,100%,.1);color:#ffea00}.level_selector[data-level-selector] li a:hover a{color:#fff;text-decoration:none}.level_selector[data-level-selector] li.current a{color:#2ecc71} 
+  
 .media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] {
     height: 5px !important; }.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar]:hover .bar-background[data-seekbar] {
     height: 7px !important;}.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] .bar-fill-1[data-seekbar] {
-    background-color: red !important;}.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] {background-color: rgba(255, 255, 255, 0.2) !important; }
+    background-color: red !important;}.media-control[data-media-control] .media-control-layer[data-controls] .bar-container[data-seekbar] .bar-background[data-seekbar] {background-color: WHITE !important; }
 .player-poster[data-poster] {
   background-size: cover;
 }
 body{
   margin:0;
   padding:0;
+   background-color: #05081c;
 }
 
 </style>
 </head>
 <div id="player"></div>
-<script>
+
+ 
+  <script>
 
     var player = new Clappr.Player({
-        source: "https://bein-esp-xumo.amagi.tv/playlist.m3u8",
-        poster: ' ',
+           source: "https://bein-esp-xumo.amagi.tv/playlist.m3u8",
         mimeType: 'application/dash+xml',
-        autoPlay: false,
+        Type: 'hls',
+        poster: 'https://i.imgur.com/2bLKID7.jpeg',
         height: '100%',
+        mute: false,
+        volume:100,
+       autoPlay: false,
         width: '100%',
+         mediacontrol: { seekbar: "#ffea00", buttons: "#ffea00" },
+                plugins: [
+                    DashShakaPlayback,
+                    ClapprPip.PipButton,
+                    ClapprPip.PipPlugin,
+                    LevelSelector
+                ],
         plugins: [LevelSelector, DashShakaPlayback, ChromecastPlugin, ClapprPip.PipButton, ClapprPip.PipPlugin, Clappr.MediaControl],
         events: {onReady: function() {var plugin = this.getPlugin('click_to_pause'); plugin && plugin.disable();},},
         chromecast: {
@@ -65,4 +71,85 @@ body{
         shakaOnBeforeLoad: function (shaka_player) {},
         parentId: '#player'
     });
+  
+  
+  
+  // =============================
+  // BLOQUE MODIFICADO SIN DVR
+  // =============================
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isSmartTV = /SmartTV|SMART-TV|Tizen|Web0S|Roku|AppleTV|CrKey|Android TV|BRAVIA|HbbTV|NetCast|DTV|Smart-TV|Chromecast/i.test(navigator.userAgent);
+ 
+
+  // Audio Boost
+  if (!isSmartTV) {
+    player.on("play", function () {
+      const video = document.querySelector("#player video");
+      if (video && !video.audioBoostApplied) {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaElementSource(video);
+          const gain = audioCtx.createGain();
+          gain.gain.value = 2;
+          source.connect(gain);
+          gain.connect(audioCtx.destination);
+          video.muted = false;
+          video.volume = 1.0;
+          video.audioBoostApplied = true;
+        } catch(e) { console.warn("Audio boost no disponible:", e); }
+      }
+    });
+  }
+
+  // SmartTV fallback
+  if (isSmartTV) {
+    player.on("ready", function () {
+      const video = document.querySelector("#player video");
+      if (video) { video.muted = false; try { video.volume = 1.0; } catch(e){} }
+    });
+  }
+ const hlsJsConfig = {
+    autoStartLoad: true,
+    capLevelToPlayerSize: true,
+    maxBufferLength: 30,
+    maxMaxBufferLength: 60,
+    liveSyncDurationCount: 3,
+    enableWorker: true,
+    debug: false,
+    abrEwmaFastLive: 3.0,
+    abrEwmaSlowLive: 9.0,
+    abrBandWidthFactor: 0.9,
+    abrBandWidthUpFactor: 0.8
+  };
+
+  
+  // Auto selección de audio
+  const lang = 1;
+  player.on("play", () => player.setCurrentAudioTrack(lang));
+
+  // ROTACIÓN AUTOMÁTICA
+  // Lógica de Rotación
+    player.on("fullscreen", async function(isFullscreen) {
+      const contenedor = document.getElementById("player-container");
+      if (isFullscreen) {
+        if (!isIOS && screen.orientation?.lock) {
+          try { await screen.orientation.lock("landscape"); } catch(e) {}
+        } else if (isIOS) {
+          contenedor.classList.add("ios-landscape");
+        }
+      } else {
+        if (!isIOS && screen.orientation?.unlock) {
+          try { screen.orientation.unlock(); } catch(e) {}
+        }
+        if (isIOS) contenedor.classList.remove("ios-landscape");
+      }
+    });
+
+    // WakeLock
+    async function activarWakeLock() {
+      if ("wakeLock" in navigator) {
+        try { await navigator.wakeLock.request("screen"); } catch (err) {}
+      }
+    }
+    player.on("play", () => activarWakeLock());
 </script>
