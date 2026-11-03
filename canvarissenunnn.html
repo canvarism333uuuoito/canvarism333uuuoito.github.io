@@ -677,8 +677,17 @@ description: "EN VIVO",
         controls: true
       });
 
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
       const isSmartTV = /SmartTV|Tizen|Web0S|SmartHub|Chromecast/i.test(navigator.userAgent);
+
+      // --- Detección estricta para celulares, tablets e iPads (excluyendo PCs, Notebooks, SmartTVs, TV Box, Android TV, Decos) ---
+      const ua = navigator.userAgent;
+      const isTVOrBoxOrDeco = /SmartTV|Tizen|Web0S|SmartHub|Chromecast|GoogleTV|AndroidTV|HbbTV|TV|Deco/i.test(ua);
+      const isDesktopOrNotebook = (!/Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(ua)) && 
+                                  (!(/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1));
+      const isTargetMobileOrTablet = !isTVOrBoxOrDeco && !isDesktopOrNotebook && 
+                                      (/Android|iPhone|iPad|iPod|Mobile|Tablet|Silk|Kindle/i.test(ua) || 
+                                       (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1));
 
       if (isSmartTV) {
         player.on("ready", function () {
@@ -697,8 +706,10 @@ description: "EN VIVO",
         catch(e) {}
       });
 
-      // Manejo de fullscreen y orientación
+      // Manejo de fullscreen y orientación (Aplicar SOLO en celulares, tablets e iPads)
       player.on("fullscreen", function(e) {
+        if (!isTargetMobileOrTablet) return;
+
         const contenedor = document.getElementById("player");
         if (!isIOS && screen.orientation) {
           if (e.fullscreen) {
